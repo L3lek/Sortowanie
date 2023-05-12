@@ -1,0 +1,3 @@
+/home/niko/programowanie/Sortowanie/build/CMakeFiles/sortowanie.dir
+/home/niko/programowanie/Sortowanie/build/CMakeFiles/edit_cache.dir
+/home/niko/programowanie/Sortowanie/build/CMakeFiles/rebuild_cache.dir
