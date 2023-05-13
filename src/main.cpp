@@ -16,31 +16,59 @@ struct Movie {
 };
 
 int main() {
-	int i=0;
-    std::ifstream dataset;  // baza filmow (wczytywany plik)
-    std::string dataset_name = "filmy.csv";
-    std::ofstream sorted_dataset;  // posortowana baza (zapisywany plik)
-    std::string sorted_dataset_name;
+    std::ifstream film_list;
+    std::ofstream sorted_list;
+    std::string line,temp;
+    char identifier;
+    film_list.open("filmy.csv");
 
-    std::vector<Movie> movies; // wektor struktur przechowujących nazwy filmów i ich oceny
+    if (film_list.is_open()) {
+    std::cout << "Plik poprawnie otwarty" << std::endl;
+}
+else {
+    std::cout << "Nie ma poprawnego pliku" << std::endl;
+}
+    Movie* movie = new Movie[10];
+           std::getline(film_list, line);  // pominiecie headera
+        for (unsigned int i = 0; i < 10; i++) {
+            // format pliku: indeks,nazwa,ocena
+            std::getline(film_list, line);  // dzielenie pliku na linie
+            std::stringstream split(line);
+            // wczytywanie indeksu i przecinka
+            std::getline(split, temp, ',');
+            // wczytywanie nazwy - pomiedzy " " lub zwykla oddzielona
+            // przecinkiem
+            std::stringstream::pos_type positon = split.tellg();
+            split >> identifier;
+            if (identifier == '"') {
+                std::getline(split, movie[i].name, '"');
+                split >> identifier;  // ignoruj ,
+            }
+            else {
+                split.seekg(positon);  // wroc
+                std::getline(split, movie[i].name, ',');
+            }
+            // wczytywanie oceny
+            if (!(split >> movie[i].rating)) {
+                movie[i].rating = -1;
+            }
+        }
+        film_list.close();
 
-    std::string line;
-    while (i<10) { // dla każdej linii w pliku
-        std::istringstream ss(line);
-        std::string name, rating_str;
-        getline(ss, name, ','); // wczytaj nazwę filmu
-        getline(ss, rating_str, ','); // wczytaj ocenę jako ciąg znaków
-        int rating = stoi(rating_str); // zamień ocenę na typ int
-        movies.push_back({name, rating}); // dodaj film do wektora struktur
-		i++;
+    sorted_list.open("sort.csv");
+    if(sorted_list.is_open()){
+        sorted_list << ",movie,rating\n";
+        for(int i=0;i<10; ++i){
+            
+            sorted_list << i << ",\"" << movie[i].name << "\"," << movie[i].rating <<"\n";
+        }
+        sorted_list.close();
+    }else{
+        std::cout << "Nie można zapisać \n";
     }
 
-    dataset.close(); // zamknij plik
+    delete[] movie;
 
-    // wyświetl nazwy filmów i ich oceny
-    for (auto movie : movies) {
-        std::cout << movie.name << ": " << movie.rating << std::endl;
-    }
 
     return 0;
 }

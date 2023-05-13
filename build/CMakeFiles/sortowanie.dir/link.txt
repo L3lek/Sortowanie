@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/sortowanie.dir/src/main.cpp.o -o sortowanie 
+/usr/bin/c++ -g CMakeFiles/sortowanie.dir/src/main.cpp.o -o sortowanie 

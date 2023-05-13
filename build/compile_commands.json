@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/niko/programowanie/Sortowanie/build",
+  "command": "/usr/bin/c++  -I/home/niko/programowanie/Sortowanie/inc -g -o CMakeFiles/sortowanie.dir/src/main.cpp.o -c /home/niko/programowanie/Sortowanie/src/main.cpp",
+  "file": "/home/niko/programowanie/Sortowanie/src/main.cpp"
+}
+]

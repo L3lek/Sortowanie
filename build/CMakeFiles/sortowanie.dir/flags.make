@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/niko/programowanie/Sortowanie/inc
 
-CXX_FLAGS = 
+CXX_FLAGS = -g
 
