@@ -1,58 +1,42 @@
 #pragma once
-#include <vector>
 
 template<typename T>
-void Merge(T& vec, int left, int middle, int right){
-    int i,j,k;
-    int n1=middle-left+1;
-    int n2=right-middle;
+void Merge(T* vec, int left, int middle, int right){
+    int i=left,j=middle+1, k=0;
 
-    T L(n1), R(n2);
+    T* tmp = new T[right-left+1];
 
-    for(i=0;i<n1;i++)
-        L[i]=vec[left+i];
-
-    for(j=0;j<n2;j++)
-        R[j]=vec[middle+1+j];
-
-    i=0;
-    j=0;
-    k=left;
-
-    while(i<n1&&j<n2){
-        if(L[i]<=R[j]){
-            vec[k]=L[i];
-            i++;
+    while(i<=middle && j<=right){
+        if(vec[j]<vec[i]){
+            tmp[k++]=vec[j++];
         }
         else{
-            vec[k]=R[j];
-            j++;
+            tmp[k++]=vec[i++];
         }
-    k++;
     }
 
-    while(i<n1){
-        vec[k]=L[i];
-        i++;
-        k++;
-    }
+    if(i<=middle)
+        while(i<=middle){
+            tmp[k++]=vec[i++];
+        }
+    else
+        while(j<=right){
+            tmp[k++]=vec[j++];
+        }
 
-    while(j<n2){
-        vec[k]=R[j];
-        j++;
-        k++;
+    for(int t=0;t<=right-left;t++){
+        vec[left+t]=tmp[t];
     }
+    delete[] tmp;
 }
 
 template<typename T>
-void Mergesort(T& vec, int left, int right){
-    if(left>=right)
-        return;
+void Mergesort(T* vec, int left, int right){
+    if(left>=0 && left<right){
+        int middle = (left+right)/2;
+        Mergesort(vec, left,middle);
+        Mergesort(vec,middle+1,right);
 
-    int middle = left+(right-left)/2;
-
-    Mergesort(vec, left, middle);
-    Mergesort(vec, middle+1, right);
-
-    Merge(vec, left, middle, right);
+        Merge(vec,left,middle,right);
+    }
 }

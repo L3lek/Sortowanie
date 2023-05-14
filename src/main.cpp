@@ -1,6 +1,7 @@
 #include "bucket.h"
 #include "merge.h"
 #include "quick.h"
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -8,18 +9,22 @@
 #include <sstream>
 
 
-
-
 struct Movie {
     std::string name;
-    int rating;
+    short rating;
+    bool operator<(Movie compared){return(rating < compared.rating);}
+    bool operator>(Movie compared){return(rating > compared.rating);}
 };
 
 int main() {
+
+    Movie* movie = new Movie[10];
+
     std::ifstream film_list;
     std::ofstream sorted_list;
     std::string line,temp;
     char identifier;
+    int unrated=0;
     film_list.open("filmy.csv");
 
     if (film_list.is_open()) {
@@ -28,7 +33,6 @@ int main() {
 else {
     std::cout << "Nie ma poprawnego pliku" << std::endl;
 }
-    Movie* movie = new Movie[10];
            std::getline(film_list, line);  // pominiecie headera
         for (unsigned int i = 0; i < 10; i++) {
             // format pliku: indeks,nazwa,ocena
@@ -50,17 +54,40 @@ else {
             }
             // wczytywanie oceny
             if (!(split >> movie[i].rating)) {
+                unrated++;
                 movie[i].rating = -1;
             }
         }
         film_list.close();
 
+        if(unrated>0){
+            std::cout << "> Filmy bez oceny: " << unrated << '\n';
+        }
+
+        Movie* rated_movies = new Movie[10 - unrated];
+
+        int j=0;
+    
+        while(j<9){
+            if(movie[j].rating !=-1){
+                rated_movies[j++]=movie[j++];
+            }else{
+                j++;
+            }
+        }
+
+        delete[] movie;
+        std::cout << "1\n";
+    //Quicksort(rated_movies,0,9-unrated);
+
+
+
     sorted_list.open("sort.csv");
     if(sorted_list.is_open()){
         sorted_list << ",movie,rating\n";
-        for(int i=0;i<10; ++i){
+        for(int i=0;i<10-unrated; ++i){
             
-            sorted_list << i << ",\"" << movie[i].name << "\"," << movie[i].rating <<"\n";
+            sorted_list << i << ",\"" << rated_movies[i].name << "\"," << rated_movies[i].rating <<"\n";
         }
         sorted_list.close();
     }else{
@@ -72,21 +99,6 @@ else {
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -8,4 +8,4 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(inc)
 
 # Dodanie plików źródłowych
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp )

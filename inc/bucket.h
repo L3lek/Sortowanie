@@ -2,34 +2,27 @@
 #include <vector>
 #include <algorithm>
 
+
 template<typename T>
-void bucket_sort(T& arr) {
-    int min_val = *min_element(arr.begin(), arr.end());
-    int max_val = *max_element(arr.begin(), arr.end());
+void bucket_sort(T arr[], int n) {
+    // Find maximum rating to determine the range of buckets
+    int max_rating = 10;
 
-    // Oblicz długość każdego kubełka i ilość kubełków
-    int bucket_size = 10;
-    int bucket_count = (max_val - min_val) / bucket_size + 1;
+    // Create buckets
+    std::vector<T> buckets[max_rating + 1];
 
-    // Inicjalizuj kubełki jako puste listy
-    std::vector<std::vector<int>> buckets(bucket_count);
-
-    // Rozdziel każdą liczbę z wektora do odpowiedniego kubełka
-    for (int num : arr) {
-        int index = (num - min_val) / bucket_size;
-        buckets[index].push_back(num);
+    // Add each element to the appropriate bucket
+    for (int i = 0; i < n; i++) {
+        buckets[arr[i].rating].push_back(arr[i]);
     }
 
-    // Posortuj każdy kubełek osobno
-    for (auto& bucket : buckets) {
-        sort(bucket.begin(), bucket.end());
-    }
-
-    // Połącz kubełki w jedną posortowaną listę
-    int i = 0;
-    for (auto& bucket : buckets) {
-        for (int num : bucket) {
-            arr[i++] = num;
+    // Sort each bucket and concatenate the results
+    int k = 0;
+    for (int i = max_rating; i >= 0; i--) {
+        std::sort(buckets[i].begin(), buckets[i].end(), std::greater<T>());
+        for (unsigned int j = 0; j < buckets[i].size(); j++) {
+            arr[k] = buckets[i][j];
+            k++;
         }
     }
 }

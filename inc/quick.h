@@ -2,11 +2,11 @@
 #include <vector>
 
 template<typename T>
-void Quicksort(T& vec, int left, int right){
+void Quicksort(T* vec, int left, int right){
     if(left>=right)
         return;
 
-    int pivot=vec[(left+right)/2];
+    T pivot=vec[(left+right)/2];
     int i=left;
     int j=right;
 
