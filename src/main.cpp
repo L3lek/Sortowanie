@@ -17,8 +17,9 @@ struct Movie {
 };
 
 int main() {
-
-    Movie* movie = new Movie[10];
+    int n=100000;
+    Movie* movie = new Movie[n];
+    
 
     std::ifstream film_list;
     std::ofstream sorted_list;
@@ -34,7 +35,7 @@ else {
     std::cout << "Nie ma poprawnego pliku" << std::endl;
 }
            std::getline(film_list, line);  // pominiecie headera
-        for (unsigned int i = 0; i < 10; i++) {
+        for (unsigned int i = 0; i < n; i++) {
             // format pliku: indeks,nazwa,ocena
             std::getline(film_list, line);  // dzielenie pliku na linie
             std::stringstream split(line);
@@ -64,28 +65,29 @@ else {
             std::cout << "> Filmy bez oceny: " << unrated << '\n';
         }
 
-        Movie* rated_movies = new Movie[10 - unrated];
 
-        int j=0;
-    
-        while(j<9){
+        Movie* rated_movies = new Movie[n-unrated];
+
+        int j=0,i=0;
+        while(j<n){
             if(movie[j].rating !=-1){
-                rated_movies[j++]=movie[j++];
+                rated_movies[i++]=movie[j++];
             }else{
                 j++;
             }
         }
 
-        delete[] movie;
-        std::cout << "1\n";
-    //Quicksort(rated_movies,0,9-unrated);
+    delete[] movie;
+
+
+    Quicksort(rated_movies,0,n-unrated-1);
 
 
 
     sorted_list.open("sort.csv");
     if(sorted_list.is_open()){
         sorted_list << ",movie,rating\n";
-        for(int i=0;i<10-unrated; ++i){
+        for(int i=0;i<n-unrated; ++i){
             
             sorted_list << i << ",\"" << rated_movies[i].name << "\"," << rated_movies[i].rating <<"\n";
         }
@@ -94,8 +96,7 @@ else {
         std::cout << "Nie można zapisać \n";
     }
 
-    delete[] movie;
-
+    delete[] rated_movies;
 
     return 0;
 }

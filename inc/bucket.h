@@ -4,12 +4,11 @@
 
 
 template<typename T>
-void bucket_sort(T arr[], int n) {
+void bucket_sort(T* arr, int n, int max) {
     // Find maximum rating to determine the range of buckets
-    int max_rating = 10;
 
     // Create buckets
-    std::vector<T> buckets[max_rating + 1];
+    std::vector<T> buckets[max + 1];
 
     // Add each element to the appropriate bucket
     for (int i = 0; i < n; i++) {
@@ -18,8 +17,8 @@ void bucket_sort(T arr[], int n) {
 
     // Sort each bucket and concatenate the results
     int k = 0;
-    for (int i = max_rating; i >= 0; i--) {
-        std::sort(buckets[i].begin(), buckets[i].end(), std::greater<T>());
+    for (int i = max; i >= 0; i--) {
+        Quicksort(buckets,0,max+1);
         for (unsigned int j = 0; j < buckets[i].size(); j++) {
             arr[k] = buckets[i][j];
             k++;
