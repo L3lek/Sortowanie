@@ -1,12 +1,11 @@
-#include "bucket.h"
+#include "intro.h"
 #include "merge.h"
 #include "quick.h"
+#include "file.h"
 
 #include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
-#include <sstream>
+#include <chrono>
+
 
 
 struct Movie {
@@ -16,59 +15,50 @@ struct Movie {
     bool operator>(Movie compared){return(rating > compared.rating);}
 };
 
+void average(Movie* movies, int size){
+    float average=0;
+    for(int i=0; i<size; i++){
+        average+=movies[i].rating;
+    }
+    average /= size;
+
+    std::cout << "Średnia ocen: " << average << std::endl;
+}
+
+void median(Movie* movies, int size){
+    int median;
+    if(size%2!=0){
+        median = movies[size/2].rating;
+    }else{
+        median=(movies[(size-1)/2].rating+movies[size/2].rating)/2;
+    }
+
+    std::cout << "Mediana ocen: " << median << std::endl;
+}
+
+
 int main() {
-    int n=100000;
+int a[]={10000, 100000, 500000, 1000000};
+
+for(int n:a){
+
+    std::cout <<"------------------------------------------------------------"<<std::endl << "Wielkość tablicy: " << n << std::endl <<std::endl;
     Movie* movie = new Movie[n];
-    
-
-    std::ifstream film_list;
-    std::ofstream sorted_list;
-    std::string line,temp;
-    char identifier;
-    int unrated=0;
-    film_list.open("filmy.csv");
-
-    if (film_list.is_open()) {
-    std::cout << "Plik poprawnie otwarty" << std::endl;
-}
-else {
-    std::cout << "Nie ma poprawnego pliku" << std::endl;
-}
-           std::getline(film_list, line);  // pominiecie headera
-        for (unsigned int i = 0; i < n; i++) {
-            // format pliku: indeks,nazwa,ocena
-            std::getline(film_list, line);  // dzielenie pliku na linie
-            std::stringstream split(line);
-            // wczytywanie indeksu i przecinka
-            std::getline(split, temp, ',');
-            // wczytywanie nazwy - pomiedzy " " lub zwykla oddzielona
-            // przecinkiem
-            std::stringstream::pos_type positon = split.tellg();
-            split >> identifier;
-            if (identifier == '"') {
-                std::getline(split, movie[i].name, '"');
-                split >> identifier;  // ignoruj ,
-            }
-            else {
-                split.seekg(positon);  // wroc
-                std::getline(split, movie[i].name, ',');
-            }
-            // wczytywanie oceny
-            if (!(split >> movie[i].rating)) {
-                unrated++;
-                movie[i].rating = -1;
-            }
-        }
-        film_list.close();
+    int unrated=wczytaj(movie, n);
+    int real_size=n-unrated;
 
         if(unrated>0){
-            std::cout << "> Filmy bez oceny: " << unrated << '\n';
+            std::cout << "> Filmy bez oceny: " << unrated << '\n'<<std::endl;
+        }else{
+            std::cout << "> Wszystkie filmy są poprawnie ocenione\n"<<std::endl;
         }
 
 
-        Movie* rated_movies = new Movie[n-unrated];
+    Movie* rated_movies = new Movie[real_size];
 
-        int j=0,i=0;
+    int j=0,i=0;
+
+    auto duration_start = std::chrono::high_resolution_clock::now();
         while(j<n){
             if(movie[j].rating !=-1){
                 rated_movies[i++]=movie[j++];
@@ -76,74 +66,88 @@ else {
                 j++;
             }
         }
+    auto duration_end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<double, std::milli>(duration_end - duration_start).count();
+
+        if(unrated>0)
+            std::cout << "Po przefiltrowaniu zostało: " << real_size << ". Czas filtracji: " << duration <<" ms." << std::endl;
 
     delete[] movie;
 
+    Movie* intro_movie = new Movie[real_size];
+    Movie* quick_movie = new Movie[real_size];
+    Movie* merge_movie = new Movie[real_size];
 
-    Quicksort(rated_movies,0,n-unrated-1);
-
-
-
-    sorted_list.open("sort.csv");
-    if(sorted_list.is_open()){
-        sorted_list << ",movie,rating\n";
-        for(int i=0;i<n-unrated; ++i){
-            
-            sorted_list << i << ",\"" << rated_movies[i].name << "\"," << rated_movies[i].rating <<"\n";
-        }
-        sorted_list.close();
-    }else{
-        std::cout << "Nie można zapisać \n";
+    std::cout << "Sortowanie przy użyciu algorytmu sortowania introspectywnego" <<std::endl <<std::endl;
+    
+    for(int i=0;i<real_size;i++){
+    intro_movie[i] = rated_movies[i];
     }
 
+    duration_start = std::chrono::high_resolution_clock::now();
+    hybrid_IntroSort(intro_movie,0,n-unrated-1);
+    duration_end = std::chrono::high_resolution_clock::now();
+    auto duration_intro = std::chrono::duration<double, std::milli>(duration_end - duration_start).count();
+    std::cout << "Czas trwania sortowania introspectywnego: " << duration_intro<< " ms."<<std::endl;
+
+    average(intro_movie,real_size);
+    median(intro_movie,real_size);
+
+    std::string file_name = "Introsort "+ std::to_string(n) + ".csv";
+    zapisz(intro_movie,file_name, real_size);
+
+
+
+
+    std::cout << "Sortowanie przy użyciu algorytmu sortowania quicksort" <<std::endl <<std::endl;
+
+    for(int i=0;i<real_size;i++){
+    quick_movie[i] = rated_movies[i];
+    }
+    
+    duration_start = std::chrono::high_resolution_clock::now();
+    Quicksort(quick_movie,0,n-unrated-1);
+    duration_end = std::chrono::high_resolution_clock::now();
+    auto duration_quick = std::chrono::duration<double, std::milli>(duration_end - duration_start).count();
+    std::cout << "Czas trwania sortowania quicksort: " << duration_quick<< " ms."<<std::endl;
+
+    average(quick_movie,real_size);
+    median(quick_movie,real_size);
+
+    file_name = "Quicksort "+ std::to_string(n) + ".csv";
+    zapisz(quick_movie,file_name, real_size);
+
+    
+
+
+
+    std::cout << "Sortowanie przy użyciu algorytmu sortowania przez scalanie" <<std::endl <<std::endl;
+
+    for(int i=0;i<real_size;i++){
+    merge_movie[i] = rated_movies[i];
+    }
+
+    duration_start = std::chrono::high_resolution_clock::now();
+    Mergesort(merge_movie,0,real_size-1);
+    duration_end = std::chrono::high_resolution_clock::now();
+    auto duration_merge = std::chrono::duration<double, std::milli>(duration_end - duration_start).count();
+    std::cout << "Czas trwania sortowania przez scalanie: " << duration_merge << " ms." <<std::endl;
+
+
+    average(merge_movie,real_size);
+
+    median(merge_movie,real_size);
+    std::cout <<std::endl;
+
+    file_name = "Mergesort "+ std::to_string(n) + ".csv";
+    zapisz(merge_movie,file_name, real_size);
+
+    delete[] intro_movie;
+    delete[] quick_movie;
+    delete[] merge_movie;
     delete[] rated_movies;
 
+    }
     return 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//int main(){
-//std::vector<int>arr={5,6,-2,11,43,12,0,1,2,9};
-//std::vector<int>merge=arr, bucket=arr, quick=arr;
-
-//for(int i=0;i<arr.size(); i++){
-//    std::cout << arr[i]<< ' ';
-//}
-//std::cout << std::endl;
-
-
-//bucket_sort(bucket);
-//for(int i=0;i<bucket.size();i++){
-//    std::cout << bucket[i] << ' ';
-//}
-//std::cout << std::endl;
-
-//Quicksort(quick, 0, quick.size()-1);
-//for(int i=0;i<quick.size();i++){
-//    std::cout << quick[i] << ' ';
-//}
-//std::cout << std::endl;
-
-//Mergesort(merge, 0, merge.size()-1);
-//for(int i=0;i<merge.size();i++){
-//    std::cout << merge[i] << ' ';
-//}
-//std::cout << std::endl;
-
-
-//	return 0;
-//}

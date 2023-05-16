@@ -1,27 +1,33 @@
 #pragma once
 #include <vector>
 
-template<typename T>
-void Quicksort(T* vec, int left, int right){
-    if(left>=right)
-        return;
 
-    T pivot=vec[(left+right)/2];
-    int i=left;
-    int j=right;
+template <typename T>
+int partition(T* array, int start, int end) {
+    T temp, pivot = array[(start + end) / 2];  // element srodkowy
+    int l = start, r = end;                    // iteratory dla podtablic lewej i prawej
 
-    while(i<=j){
-        while(vec[i]<pivot)
-            i++;
-        while(vec[j]>pivot)
-            j--;
 
-        if(i<=j){
-            std::swap(vec[i],vec[j]);
-            i++;
-            j--;
-        }
+    while (1) {
+        while (array[l] < pivot) l++;  // dopoki po lewej sa mniejsze od srodkowego
+        while (array[r] > pivot) r--;  // dopoki po prawej sa wieksze od srodkowego
+
+        if (l >= r)
+            return r;  // element osiowy
+
+        // zamien elementy - mniejszy na lewo, wiekszy na prawo
+        temp = array[l];
+        array[l++] = array[r];
+        array[r--] = temp;
     }
-    Quicksort(vec, left, j);
-    Quicksort(vec, i, right);
+}
+
+template <typename T>
+void Quicksort(T* array, int start, int end) {
+    // rekurencyjne dzielenie na 2 podtablice az do uzyskania jednoelementowych
+    if (start >= 0 && start < end) {
+        int pivot = partition(array, start, end);  // element osiowy
+        Quicksort(array, start, pivot);            // lewa podtablica
+        Quicksort(array, pivot + 1, end);          // prawa podtablica
+    }
 }
